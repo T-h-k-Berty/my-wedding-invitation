@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
+import { weddingConfig } from "../../lib/weddingConfig"; // දත්ත ගොනුව Import කිරීම
 
 type Guest = {
   id: string;
@@ -36,10 +37,10 @@ export default function GuestList() {
   return (
     <div className="min-h-screen relative font-bodoni text-white overflow-hidden">
       
-      {/* Background Image (Same as main page) */}
+      {/* Background Image from Config */}
       <div 
         className="fixed inset-0 z-0 bg-cover bg-center bg-fixed"
-        style={{ backgroundImage: "url('/bg-image.jpg')" }}
+        style={{ backgroundImage: weddingConfig.backgroundImage }}
       ></div>
       <div className="fixed inset-0 z-0 bg-black/70 backdrop-blur-sm"></div>
 
@@ -51,7 +52,7 @@ export default function GuestList() {
             Guest Count Dashboard
           </h1>
           <p className="text-gray-300 tracking-[0.3em] uppercase text-xs md:text-sm">
-            Guest List & Responses
+            {weddingConfig.coupleFullName}
           </p>
         </div>
 
@@ -81,7 +82,6 @@ export default function GuestList() {
           ) : guests.length === 0 ? (
             <p className="p-20 text-center text-gray-400 italic">No RSVPs received yet.</p>
           ) : (
-            /* Fixed height container for scroll (Approx 7 rows) */
             <div className="overflow-x-auto">
               <div className="max-h-[480px] overflow-y-auto custom-scrollbar">
                 <table className="w-full text-left border-collapse">
@@ -122,28 +122,17 @@ export default function GuestList() {
         {/* Footer Link */}
         <div className="mt-10 text-center">
             <p className="text-xs text-white/40 uppercase tracking-widest">
-                © 2026 Dewmi & Charuka Wedding Dashboard
+                © {weddingConfig.year} {weddingConfig.coupleFullName} Wedding Dashboard
             </p>
         </div>
         
       </div>
 
-      {/* Adding custom scrollbar styling in JSX */}
       <style jsx global>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: rgba(255, 255, 255, 0.05);
-          border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #ca8a04;
-          border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #fef08a;
-        }
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #ca8a04; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #fef08a; }
       `}</style>
     </div>
   );

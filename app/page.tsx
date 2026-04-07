@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { supabase } from "../lib/supabase"; 
+import { weddingConfig } from "../lib/weddingConfig"; // දත්ත ගොනුව Import කිරීම
 
 // Countdown Timer Component
 const CountdownTimer = ({ targetDate }: { targetDate: string }) => {
@@ -34,14 +35,6 @@ const CountdownTimer = ({ targetDate }: { targetDate: string }) => {
     </div>
   );
 };
-
-const scheduleItems = [
-  { time: "09:30 AM", title: "Welcome & Guest Arrival", desc: "Arrival of guests, welcome drinks, and finding seats.", icon: "🥂" },
-  { time: "10:30 AM", title: "Wedding Ceremony", desc: "The beautiful moment we exchange our vows and rings.", icon: "💍" },
-  { time: "12:30 PM", title: "Celebration Luncheon", desc: "Join us for a grand festive feast and refreshments.", icon: "🍽️" },
-  { time: "02:30 PM", title: "First Dance & Toasts", desc: "Celebrating the newlyweds with heartfelt speeches and dancing.", icon: "💃" },
-  { time: "04:00 PM", title: "Evening Party", desc: "Hit the dance floor and make unforgettable memories with us.", icon: "🎶" }
-];
 
 export default function WeddingInvitation() {
   const [step, setStep] = useState(0);
@@ -119,11 +112,11 @@ export default function WeddingInvitation() {
   return (
     <main className={`relative w-full overflow-x-hidden ${step !== 2 ? 'h-screen flex items-center justify-center' : 'min-h-screen py-10'}`}>
       
-      <audio ref={audioRef} loop src="/music.mp3" />
+      <audio ref={audioRef} loop src={weddingConfig.musicFile} />
 
       <div 
         className="fixed inset-0 z-0 bg-cover bg-center bg-fixed"
-        style={{ backgroundImage: "url('/bg-image.jpg')" }}
+        style={{ backgroundImage: weddingConfig.backgroundImage }}
       ></div>
       <div className={`fixed inset-0 z-0 ${step === 2 ? 'bg-black/50' : 'bg-black/70'} transition-colors duration-1000`}></div>
 
@@ -166,7 +159,9 @@ export default function WeddingInvitation() {
             className={`absolute top-[55%] left-1/2 wax-seal w-24 h-24 md:w-28 md:h-28 rounded-full flex items-center justify-center z-40 border border-red-950 transition-all cursor-pointer ${step === 1 ? 'animate-fade-out' : 'clickable-seal'}`}
           >
              <div className="absolute inset-[6px] rounded-full border-2 border-yellow-600/40 border-dashed flex items-center justify-center">
-                <span className="font-pinyon text-4xl md:text-5xl text-yellow-400 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">D<span className="text-2xl">&</span>C</span>
+                <span className="font-pinyon text-4xl md:text-5xl text-yellow-400 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                  {weddingConfig.initials.bride}<span className="text-2xl">&</span>{weddingConfig.initials.groom}
+                </span>
              </div>
           </div>
 
@@ -189,7 +184,7 @@ export default function WeddingInvitation() {
             <p className="font-bodoni text-xl md:text-2xl font-semibold mb-10 text-white drop-shadow-lg">We joyfully invite you to join us</p>
 
             <h1 className="font-pinyon text-6xl md:text-8xl text-luxury-gold drop-shadow-[0_4px_10px_rgba(0,0,0,0.8)] mb-8">
-              Dewmi & Charuka
+              {weddingConfig.coupleFullName}
             </h1>
 
             <p className="max-w-md mx-auto text-sm md:text-base leading-relaxed mb-10 py-6 border-y border-white/30 text-white drop-shadow-md">
@@ -197,17 +192,17 @@ export default function WeddingInvitation() {
             </p>
 
             <div className="mb-10 text-white">
-              <p className="font-bodoni text-2xl md:text-3xl font-bold mb-6 border-t border-white/30 pt-6 drop-shadow-md">20 . 08 . 2026</p>
+              <p className="font-bodoni text-2xl md:text-3xl font-bold mb-6 border-t border-white/30 pt-6 drop-shadow-md">{weddingConfig.dateFormatted}</p>
               <div className="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-12 text-sm uppercase tracking-widest text-yellow-200">
-                <div className="text-center"><p className="font-bold text-white text-base drop-shadow-md">Kingsbury Hotel</p><p>Colombo</p></div>
+                <div className="text-center"><p className="font-bold text-white text-base drop-shadow-md">{weddingConfig.venue}</p><p>{weddingConfig.city}</p></div>
                 <div className="hidden md:block w-px h-10 bg-white/30"></div>
-                <div className="text-center"><p className="font-bold text-white text-base drop-shadow-md">10:30 AM</p><p>Sri Lanka</p></div>
+                <div className="text-center"><p className="font-bold text-white text-base drop-shadow-md">{weddingConfig.time}</p><p>{weddingConfig.country}</p></div>
               </div>
             </div>
 
             <div className="w-full max-w-3xl mx-auto mt-10 rounded-xl overflow-hidden border-2 border-white/30 shadow-2xl mb-10">
               <iframe 
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3960.6766442646695!2d79.84074217500004!3d6.929215093070081!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ae2593cd3a58e8b%3A0xed499eecde7ee951!2sThe%20Kingsbury%20Colombo!5e0!3m2!1sen!2slk!4v1712484300000!5m2!1sen!2slk" 
+                src={weddingConfig.mapUrl} 
                 width="100%" 
                 height="300" 
                 style={{border:0}} 
@@ -217,7 +212,7 @@ export default function WeddingInvitation() {
               ></iframe>
             </div>
 
-            {/* --- NEW: Image-Matched RSVP Form Section --- */}
+            {/* --- RSVP Form Section --- */}
             <div className="w-full max-w-4xl mx-auto mt-20 mb-10 py-10">
               {submitStatus === "success" ? (
                 <div className="text-center p-8 border border-yellow-400/50 rounded-xl bg-white/5 backdrop-blur-sm">
@@ -228,72 +223,35 @@ export default function WeddingInvitation() {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-center">
-                  
-                  {/* Left Side Text */}
                   <div className="text-left flex flex-col justify-center h-full">
-                    <h2 className="text-yellow-400 font-bold text-5xl md:text-6xl mb-2 drop-shadow-lg tracking-wide">
-                      Kindly Respond
-                    </h2>
-                    <h3 className="font-pinyon text-3xl md:text-4xl text-gray-200 mb-6 drop-shadow-md">
-                      Reserve Your Seat
-                    </h3>
+                    <h2 className="text-yellow-400 font-bold text-5xl md:text-6xl mb-2 drop-shadow-lg tracking-wide">Kindly Respond</h2>
+                    <h3 className="font-pinyon text-3xl md:text-4xl text-gray-200 mb-6 drop-shadow-md">Reserve Your Seat</h3>
                     <p className="text-gray-300 text-sm md:text-base leading-relaxed italic pr-0 md:pr-8">
                       Your presence means the world to us. Please kindly let us know if you will be able to join our celebration.
                     </p>
                   </div>
-
-                  {/* Right Side Form */}
                   <form className="flex flex-col gap-6 text-left w-full" onSubmit={handleRSVPSubmit}>
                     <div className="flex flex-col">
                       <label className="text-white text-xs md:text-sm mb-2 tracking-widest uppercase font-medium">Full Name</label>
-                      <input 
-                        type="text" 
-                        required
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        placeholder="Enter your name" 
-                        className="bg-transparent border-b border-white/40 focus:border-yellow-400 outline-none text-white py-2 transition-colors placeholder:text-gray-400 font-sans" 
-                      />
+                      <input type="text" required value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Enter your name" className="bg-transparent border-b border-white/40 focus:border-yellow-400 outline-none text-white py-2 transition-colors placeholder:text-gray-400 font-sans" />
                     </div>
-                    
                     <div className="flex flex-col relative">
                       <label className="text-white text-xs md:text-sm mb-2 tracking-widest uppercase font-medium">Number of Guests</label>
-                      <select 
-                        value={guestCount}
-                        onChange={(e) => setGuestCount(e.target.value)}
-                        className="bg-transparent border-b border-white/40 focus:border-yellow-400 outline-none text-white py-2 appearance-none cursor-pointer transition-colors font-sans"
-                      >
+                      <select value={guestCount} onChange={(e) => setGuestCount(e.target.value)} className="bg-transparent border-b border-white/40 focus:border-yellow-400 outline-none text-white py-2 appearance-none cursor-pointer transition-colors font-sans">
                         <option className="bg-red-950 text-white" value="1">1 Guest</option>
                         <option className="bg-red-950 text-white" value="2">2 Guests</option>
                         <option className="bg-red-950 text-white" value="3">3 Guests</option>
                         <option className="bg-red-950 text-white" value="4">4 Guests</option>
                         <option className="bg-red-950 text-white" value="5">5 Guests</option>
                       </select>
-                      {/* Red Heart Icon for dropdown */}
                       <span className="absolute right-2 bottom-3 text-red-500 pointer-events-none text-sm drop-shadow-[0_0_5px_rgba(255,0,0,0.8)]">❤</span>
                     </div>
-                    
                     <div className="flex flex-col">
                       <label className="text-white text-xs md:text-sm mb-2 tracking-widest uppercase font-medium">Dietary Notes (Optional)</label>
-                      <input 
-                        type="text"
-                        value={dietaryNotes}
-                        onChange={(e) => setDietaryNotes(e.target.value)}
-                        placeholder="Any allergies or preferences?" 
-                        className="bg-transparent border-b border-white/40 focus:border-yellow-400 outline-none text-white py-2 transition-colors placeholder:text-gray-400 font-sans"
-                      />
+                      <input type="text" value={dietaryNotes} onChange={(e) => setDietaryNotes(e.target.value)} placeholder="Any allergies or preferences?" className="bg-transparent border-b border-white/40 focus:border-yellow-400 outline-none text-white py-2 transition-colors placeholder:text-gray-400 font-sans" />
                     </div>
-                    
                     {submitStatus === "error" && <p className="text-red-400 text-sm text-center mt-2">Something went wrong. Please try again.</p>}
-                    
-                    <button 
-                      type="submit" 
-                      disabled={isSubmitting}
-                      className={`mt-6 mx-auto text-5xl md:text-6xl transition-transform drop-shadow-[0_0_20px_rgba(255,0,0,0.9)] ${isSubmitting ? 'opacity-50 animate-pulse' : 'hover:scale-110'}`} 
-                      title="Submit RSVP"
-                    >
-                      ❤️
-                    </button>
+                    <button type="submit" disabled={isSubmitting} className={`mt-6 mx-auto text-5xl md:text-6xl transition-transform drop-shadow-[0_0_20px_rgba(255,0,0,0.9)] ${isSubmitting ? 'opacity-50 animate-pulse' : 'hover:scale-110'}`} title="Submit RSVP">❤️</button>
                   </form>
                 </div>
               )}
@@ -303,7 +261,7 @@ export default function WeddingInvitation() {
             <div id="countdown" className="py-20 mt-16 border-t border-white/20">
               <p className="font-bodoni text-xs uppercase tracking-[0.3em] text-yellow-400 mb-4 text-center drop-shadow-md">The Final Countdown</p>
               <h2 className="font-bodoni text-4xl md:text-6xl text-center text-luxury-white">Until We Say <span className="text-luxury-gold italic">"I Do"</span></h2>
-              <CountdownTimer targetDate="2026-08-20T10:30:00" />
+              <CountdownTimer targetDate={weddingConfig.countdownTarget} />
             </div>
 
             {/* --- Wedding Schedule Timeline --- */}
@@ -314,7 +272,7 @@ export default function WeddingInvitation() {
               <div className="relative container mx-auto px-2 md:px-10">
                 <div className="absolute left-[38px] md:left-1/2 transform md:-translate-x-1/2 h-full w-[2px] bg-gradient-to-b from-transparent via-yellow-500 to-transparent opacity-60"></div>
                 
-                {scheduleItems.map((item, idx) => {
+                {weddingConfig.schedule.map((item, idx) => {
                   const isEven = idx % 2 === 0;
                   return (
                     <div key={idx} className={`reveal-on-scroll mb-12 flex flex-col md:flex-row justify-between items-center w-full ${isEven ? 'md:flex-row-reverse' : ''}`}>
@@ -346,26 +304,26 @@ export default function WeddingInvitation() {
                     </defs>
                     <text className="text-[10.5px] uppercase tracking-[0.1em] fill-yellow-400 font-bold font-bodoni">
                       <textPath href="#circlePath" startOffset="0%" textLength="210" lengthAdjust="spacing">
-                        DEWMI AND CHARUKA • LOVE FOREVER • 
+                        {weddingConfig.spinningText}
                       </textPath>
                     </text>
                   </svg>
                   <div className="text-4xl animate-pulse drop-shadow-xl">💕</div>
                 </div>
-                <h2 className="font-pinyon text-5xl md:text-7xl text-luxury-gold drop-shadow-lg mb-6">Dewmi & Charuka</h2>
+                <h2 className="font-pinyon text-5xl md:text-7xl text-luxury-gold drop-shadow-lg mb-6">{weddingConfig.coupleFullName}</h2>
                 <p className="max-w-2xl text-sm md:text-lg italic text-gray-200 mb-12 leading-relaxed font-serif drop-shadow-md">
-                  "A journey of a thousand miles begins with a single step, and we're so incredibly happy to take it together."
+                  {weddingConfig.quote}
                 </p>
                 <div className="w-full max-w-lg border-y border-white/20 py-8 mb-12">
                   <h3 className="font-bodoni text-lg md:text-xl uppercase tracking-widest text-yellow-500 mb-6 drop-shadow-md">Contact More Details</h3>
                   <div className="flex flex-col items-center text-gray-200">
-                    <span className="font-bodoni font-bold text-lg text-white mb-2 tracking-widest uppercase">Groom</span>
-                    <span className="text-sm tracking-widest mb-2 hover:text-yellow-400 transition-colors cursor-pointer block">+94 77 123 4567</span>
-                    <span className="text-sm hover:text-yellow-400 transition-colors cursor-pointer block">charukawedding@example.com</span>
+                    <span className="font-bodoni font-bold text-lg text-white mb-2 tracking-widest uppercase">{weddingConfig.contact.role}</span>
+                    <span className="text-sm tracking-widest mb-2 hover:text-yellow-400 transition-colors cursor-pointer block">{weddingConfig.contact.phone}</span>
+                    <span className="text-sm hover:text-yellow-400 transition-colors cursor-pointer block">{weddingConfig.contact.email}</span>
                   </div>
                 </div>
                 <p className="text-xl md:text-2xl text-white font-pinyon tracking-widest mb-4 drop-shadow-md">With all our love 💕</p>
-                <p className="text-[10px] md:text-xs text-white/50 tracking-[0.2em] uppercase font-bodoni">© 2026 Dewmi & Charuka Wedding</p>
+                <p className="text-[10px] md:text-xs text-white/50 tracking-[0.2em] uppercase font-bodoni">© {weddingConfig.year} {weddingConfig.coupleFullName} Wedding</p>
               </div>
             </div>
 

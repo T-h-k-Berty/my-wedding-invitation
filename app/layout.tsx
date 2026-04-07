@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Bodoni_Moda, Pinyon_Script } from "next/font/google";
 import "./globals.css";
+import { weddingConfig } from "../lib/weddingConfig"; // දත්ත ගොනුව Import කිරීම
 
 const bodoni = Bodoni_Moda({
   subsets: ["latin"],
@@ -14,8 +15,9 @@ const pinyon = Pinyon_Script({
   weight: "400",
 });
 
+// Dynamic Title based on config
 export const metadata: Metadata = {
-  title: "Dewmi & Charuka | A Celebration of Love",
+  title: `${weddingConfig.coupleFullName} | A Celebration of Love`,
   description: "Together with our families, we invite you to our wedding.",
 };
 
