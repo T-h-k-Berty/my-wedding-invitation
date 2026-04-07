@@ -1,0 +1,127 @@
+@import "tailwindcss";
+
+/* Text colors for dark transparent background */
+.text-luxury-gold {
+  @apply text-yellow-400 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)];
+}
+
+.text-luxury-white {
+  @apply text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)];
+}
+
+/* Elegant Countdown Box */
+.countdown-box {
+  @apply border-2 border-white/40 rounded-3xl px-6 py-8 min-w-[100px] md:min-w-[120px] flex flex-col items-center bg-white/10 shadow-xl shadow-black/50 backdrop-blur-md transition-transform hover:scale-105;
+}
+
+/* Fonts */
+.font-pinyon {
+  font-family: var(--font-pinyon), cursive;
+}
+
+/* --- Luxury Envelope Pattern --- */
+.bg-luxury-pattern {
+  background-color: #580c10; 
+  background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 20.5V18H0v-2h20v-2H0v-2h20v-2H0V8h20V6H0V4h20V2H0V0h22v20h2V0h2v20h2V0h2v20h2V0h2v20h2V0h2v20h2v2H20v-1.5zM0 20h2v20H0V20zm4 0h2v20H4V20zm4 0h2v20H8V20zm4 0h2v20h-2V20zm4 0h2v20h-2V20zm4 4h20v2H20v-2zm0 4h20v2H20v-2zm0 4h20v2H20v-2zm0 4h20v2H20v-2z' fill='%23b59410' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+}
+
+/* Wax Seal 3D Effect */
+.wax-seal {
+  background: radial-gradient(circle, #b91c1c 20%, #7f1d1d 70%, #450a0a 100%);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.8), inset 0 3px 6px rgba(255,255,255,0.2), inset 0 -3px 8px rgba(0,0,0,0.6);
+}
+
+@keyframes subtlePulse {
+  0%, 100% { transform: scale(1) translate(-50%, -50%); box-shadow: 0 10px 20px rgba(0,0,0,0.8), 0 0 0 rgba(202, 138, 4, 0); }
+  50% { transform: scale(1.05) translate(-48%, -48%); box-shadow: 0 15px 25px rgba(0,0,0,0.9), 0 0 20px rgba(202, 138, 4, 0.4); }
+}
+.clickable-seal {
+  transform-origin: center;
+  animation: subtlePulse 2s infinite;
+}
+
+/* --- Raining Hearts Animation --- */
+@keyframes fallingHeart {
+  0% { transform: translateY(-10vh) translateX(0) scale(0.5) rotate(-45deg); opacity: 0; }
+  10% { opacity: 0.8; }
+  50% { transform: translateY(50vh) translateX(30px) scale(1.2) rotate(10deg); opacity: 0.8; }
+  100% { transform: translateY(110vh) translateX(-30px) scale(1) rotate(45deg); opacity: 0; }
+}
+.heart-drop {
+  position: fixed;
+  top: -10%;
+  color: rgba(255, 182, 193, 0.8); 
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  animation: fallingHeart linear infinite;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* --- Paper Unfold Animation --- */
+@keyframes unfold {
+  0% { transform: scaleY(0.01) scaleX(0.9); opacity: 0; }
+  50% { transform: scaleY(1.02) scaleX(1); opacity: 1; }
+  100% { transform: scaleY(1) scaleX(1); opacity: 1; }
+}
+.animate-unfold {
+  animation: unfold 2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  transform-origin: top center;
+}
+
+/* --- Heart Explosion Animation --- */
+@keyframes heartExplode {
+  0% { transform: translate(-50%, -50%) scale(0.5) rotate(0deg); opacity: 1; }
+  100% { transform: translate(var(--tx), var(--ty)) scale(1.8) rotate(var(--rot)); opacity: 0; }
+}
+.exploding-heart {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  pointer-events: none;
+  animation: heartExplode 1.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  z-index: 60;
+  font-size: 3rem;
+  filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
+}
+
+/* Envelope Flap 3D Animation */
+.envelope-flap {
+  transform-origin: top;
+  transition: transform 1.8s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+}
+.flap-open {
+  transform: rotateX(180deg);
+  z-index: 0 !important;
+}
+
+@keyframes fadeOut {
+  to { opacity: 0; visibility: hidden; transform: translate(-50%, -50%) scale(0.8); }
+}
+.animate-fade-out {
+  animation: fadeOut 0.5s ease-out forwards;
+}
+
+::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* --- Scroll Reveal Animation --- */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(50px);
+  transition: opacity 0.8s ease-out, transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.reveal-on-scroll.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* --- NEW: Circular Spinning Animation for Footer --- */
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.animate-spin-slow {
+  animation: spin-slow 18s linear infinite;
+}
