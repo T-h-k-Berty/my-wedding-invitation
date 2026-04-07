@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { supabase } from "../lib/supabase"; 
 
 // Countdown Timer Component
 const CountdownTimer = ({ targetDate }: { targetDate: string }) => {
@@ -34,7 +35,6 @@ const CountdownTimer = ({ targetDate }: { targetDate: string }) => {
   );
 };
 
-// Data for Wedding Schedule
 const scheduleItems = [
   { time: "09:30 AM", title: "Welcome & Guest Arrival", desc: "Arrival of guests, welcome drinks, and finding seats.", icon: "🥂" },
   { time: "10:30 AM", title: "Wedding Ceremony", desc: "The beautiful moment we exchange our vows and rings.", icon: "💍" },
@@ -50,6 +50,13 @@ export default function WeddingInvitation() {
   const [hearts, setHearts] = useState<number[]>([]);
   const [explodingHearts, setExplodingHearts] = useState<{ id: number, tx: string, ty: string, rot: string }[]>([]);
 
+  // RSVP Form States
+  const [fullName, setFullName] = useState("");
+  const [guestCount, setGuestCount] = useState("1");
+  const [dietaryNotes, setDietaryNotes] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
+
   useEffect(() => {
     setHearts(Array.from({ length: 40 }).map((_, i) => i));
     setExplodingHearts(Array.from({ length: 40 }).map((_, i) => ({
@@ -60,7 +67,6 @@ export default function WeddingInvitation() {
     })));
   }, []);
 
-  // Use Effect for Scroll Animations
   useEffect(() => {
     if (step === 2) {
       const observer = new IntersectionObserver((entries) => {
@@ -70,15 +76,30 @@ export default function WeddingInvitation() {
           }
         });
       }, { threshold: 0.2 });
-
       const hiddenElements = document.querySelectorAll('.reveal-on-scroll');
       hiddenElements.forEach((el) => observer.observe(el));
-
-      return () => {
-        hiddenElements.forEach((el) => observer.unobserve(el));
-      };
+      return () => hiddenElements.forEach((el) => observer.unobserve(el));
     }
   }, [step]);
+
+  const handleRSVPSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!fullName) return;
+    setIsSubmitting(true);
+    
+    const { error } = await supabase
+      .from('guests')
+      .insert([{ full_name: fullName, guest_count: parseInt(guestCount), dietary_notes: dietaryNotes }]);
+
+    if (error) {
+      console.error("Supabase Error:", JSON.stringify(error, null, 2));
+      setSubmitStatus("error");
+    } else {
+      setSubmitStatus("success");
+      setFullName(""); setGuestCount("1"); setDietaryNotes("");
+    }
+    setIsSubmitting(false);
+  };
 
   const handleOpenInvitation = () => {
     if (step === 0) {
@@ -196,41 +217,86 @@ export default function WeddingInvitation() {
               ></iframe>
             </div>
 
-            {/* --- RSVP Form Section --- */}
-            <div className="mt-16 pt-16 border-t border-white/20 text-center">
-              <div className="flex md:flex-row flex-col gap-12 items-center justify-center">
-                <div className="w-full md:w-1/2 text-left pr-8 flex flex-col justify-start">
-                  <h2 className="font-bodoni text-4xl md:text-5xl text-yellow-400 font-bold mb-3 drop-shadow-lg">Kindly Respond</h2>
-                  <h3 className="text-2xl font-pinyon text-white mb-4 drop-shadow-md">Reserve Your Seat</h3>
-                  <p className="text-sm md:text-base text-gray-200 mb-8 italic max-w-lg mx-0">
-                    Your presence means the world to us. Please kindly let us know if you will be able to join our celebration.
-                  </p>
+            {/* --- NEW: Image-Matched RSVP Form Section --- */}
+            <div className="w-full max-w-4xl mx-auto mt-20 mb-10 py-10">
+              {submitStatus === "success" ? (
+                <div className="text-center p-8 border border-yellow-400/50 rounded-xl bg-white/5 backdrop-blur-sm">
+                  <div className="text-6xl mb-4">🎉</div>
+                  <h3 className="text-2xl font-bodoni text-yellow-400 mb-2">Thank You!</h3>
+                  <p className="text-white">Your RSVP has been received. We can't wait to celebrate with you!</p>
+                  <button onClick={() => setSubmitStatus("idle")} className="mt-6 text-sm underline text-gray-300 hover:text-white">Submit another</button>
                 </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-center">
+                  
+                  {/* Left Side Text */}
+                  <div className="text-left flex flex-col justify-center h-full">
+                    <h2 className="text-yellow-400 font-bold text-5xl md:text-6xl mb-2 drop-shadow-lg tracking-wide">
+                      Kindly Respond
+                    </h2>
+                    <h3 className="font-pinyon text-3xl md:text-4xl text-gray-200 mb-6 drop-shadow-md">
+                      Reserve Your Seat
+                    </h3>
+                    <p className="text-gray-300 text-sm md:text-base leading-relaxed italic pr-0 md:pr-8">
+                      Your presence means the world to us. Please kindly let us know if you will be able to join our celebration.
+                    </p>
+                  </div>
 
-                <div className="w-full md:w-1/2 flex items-center justify-center pl-8 md:mt-0 mt-10">
-                  <form className="flex flex-col gap-8 text-left max-w-md w-full" onSubmit={(e) => e.preventDefault()}>
+                  {/* Right Side Form */}
+                  <form className="flex flex-col gap-6 text-left w-full" onSubmit={handleRSVPSubmit}>
                     <div className="flex flex-col">
-                      <label className="text-white text-sm mb-2 ml-1 tracking-wider uppercase">Full Name</label>
-                      <input type="text" placeholder="Enter your name" className="bg-transparent border-b-2 border-white/50 focus:border-yellow-400 outline-none text-white px-2 py-2 transition-colors" />
+                      <label className="text-white text-xs md:text-sm mb-2 tracking-widest uppercase font-medium">Full Name</label>
+                      <input 
+                        type="text" 
+                        required
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        placeholder="Enter your name" 
+                        className="bg-transparent border-b border-white/40 focus:border-yellow-400 outline-none text-white py-2 transition-colors placeholder:text-gray-400 font-sans" 
+                      />
                     </div>
+                    
                     <div className="flex flex-col relative">
-                      <label className="text-white text-sm mb-2 ml-1 tracking-wider uppercase">Number of Guests</label>
-                      <select className="bg-transparent border-b-2 border-white/50 focus:border-yellow-400 outline-none text-white px-2 py-2 appearance-none cursor-pointer transition-colors">
+                      <label className="text-white text-xs md:text-sm mb-2 tracking-widest uppercase font-medium">Number of Guests</label>
+                      <select 
+                        value={guestCount}
+                        onChange={(e) => setGuestCount(e.target.value)}
+                        className="bg-transparent border-b border-white/40 focus:border-yellow-400 outline-none text-white py-2 appearance-none cursor-pointer transition-colors font-sans"
+                      >
                         <option className="bg-red-950 text-white" value="1">1 Guest</option>
                         <option className="bg-red-950 text-white" value="2">2 Guests</option>
                         <option className="bg-red-950 text-white" value="3">3 Guests</option>
                         <option className="bg-red-950 text-white" value="4">4 Guests</option>
+                        <option className="bg-red-950 text-white" value="5">5 Guests</option>
                       </select>
-                      <span className="absolute right-2 bottom-3 text-red-500 pointer-events-none text-sm">❤</span>
+                      {/* Red Heart Icon for dropdown */}
+                      <span className="absolute right-2 bottom-3 text-red-500 pointer-events-none text-sm drop-shadow-[0_0_5px_rgba(255,0,0,0.8)]">❤</span>
                     </div>
+                    
                     <div className="flex flex-col">
-                      <label className="text-white text-sm mb-2 ml-1 tracking-wider uppercase">Dietary Notes (Optional)</label>
-                      <textarea placeholder="Any allergies or preferences?" className="bg-transparent border-b-2 border-white/50 focus:border-yellow-400 outline-none text-white px-2 py-2 resize-none h-20 transition-colors"></textarea>
+                      <label className="text-white text-xs md:text-sm mb-2 tracking-widest uppercase font-medium">Dietary Notes (Optional)</label>
+                      <input 
+                        type="text"
+                        value={dietaryNotes}
+                        onChange={(e) => setDietaryNotes(e.target.value)}
+                        placeholder="Any allergies or preferences?" 
+                        className="bg-transparent border-b border-white/40 focus:border-yellow-400 outline-none text-white py-2 transition-colors placeholder:text-gray-400 font-sans"
+                      />
                     </div>
-                    <button type="submit" className="mt-4 mx-auto text-6xl hover:scale-125 transition-transform drop-shadow-[0_0_15px_rgba(255,0,0,0.8)]" title="Submit RSVP">❤️</button>
+                    
+                    {submitStatus === "error" && <p className="text-red-400 text-sm text-center mt-2">Something went wrong. Please try again.</p>}
+                    
+                    <button 
+                      type="submit" 
+                      disabled={isSubmitting}
+                      className={`mt-6 mx-auto text-5xl md:text-6xl transition-transform drop-shadow-[0_0_20px_rgba(255,0,0,0.9)] ${isSubmitting ? 'opacity-50 animate-pulse' : 'hover:scale-110'}`} 
+                      title="Submit RSVP"
+                    >
+                      ❤️
+                    </button>
                   </form>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* --- Countdown Timer Section --- */}
@@ -269,15 +335,10 @@ export default function WeddingInvitation() {
               </div>
             </div>
 
-            {/* --- NEW: Advanced Creative Footer --- */}
+            {/* --- Advanced Creative Footer --- */}
             <div className="relative py-24 mt-20 bg-white/5 border-t border-white/20 rounded-b-3xl shadow-2xl backdrop-blur-sm overflow-hidden reveal-on-scroll">
-              
-              {/* Subtle top glow effect */}
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-[1px] bg-gradient-to-r from-transparent via-yellow-400/60 to-transparent"></div>
-
               <div className="flex flex-col items-center justify-center text-center px-4 relative z-10">
-
-                {/* Spinning Circular Text Animation */}
                 <div className="relative flex items-center justify-center w-48 h-48 mb-8 hover:scale-110 transition-transform duration-700 cursor-pointer">
                   <svg viewBox="0 0 100 100" className="absolute w-full h-full animate-spin-slow drop-shadow-[0_0_10px_rgba(250,204,21,0.5)]">
                     <defs>
@@ -289,19 +350,12 @@ export default function WeddingInvitation() {
                       </textPath>
                     </text>
                   </svg>
-                  {/* Center Heart inside the spinning circle */}
                   <div className="text-4xl animate-pulse drop-shadow-xl">💕</div>
                 </div>
-
-                {/* Couple Names */}
                 <h2 className="font-pinyon text-5xl md:text-7xl text-luxury-gold drop-shadow-lg mb-6">Dewmi & Charuka</h2>
-
-                {/* Romantic Quote */}
                 <p className="max-w-2xl text-sm md:text-lg italic text-gray-200 mb-12 leading-relaxed font-serif drop-shadow-md">
                   "A journey of a thousand miles begins with a single step, and we're so incredibly happy to take it together."
                 </p>
-
-                {/* Contact Details */}
                 <div className="w-full max-w-lg border-y border-white/20 py-8 mb-12">
                   <h3 className="font-bodoni text-lg md:text-xl uppercase tracking-widest text-yellow-500 mb-6 drop-shadow-md">Contact More Details</h3>
                   <div className="flex flex-col items-center text-gray-200">
@@ -310,8 +364,6 @@ export default function WeddingInvitation() {
                     <span className="text-sm hover:text-yellow-400 transition-colors cursor-pointer block">charukawedding@example.com</span>
                   </div>
                 </div>
-
-                {/* Closing Note */}
                 <p className="text-xl md:text-2xl text-white font-pinyon tracking-widest mb-4 drop-shadow-md">With all our love 💕</p>
                 <p className="text-[10px] md:text-xs text-white/50 tracking-[0.2em] uppercase font-bodoni">© 2026 Dewmi & Charuka Wedding</p>
               </div>
